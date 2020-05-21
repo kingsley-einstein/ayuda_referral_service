@@ -19,7 +19,7 @@ public class Referral implements java.io.Serializable {
   @Column(name = "owner", nullable = false)
   private UUID owner;
 
-  @Column(name = "referredBy", nullable = true)
+  @Column(name = "referredBy", nullable = true, unique = true)
   private UUID referredBy;
 
   @Column(name = "amountType", nullable = false)
