@@ -36,13 +36,13 @@ public class ReferralController {
     if (body.getAmountType() > 100000 || body.getAmountType() < 500) {
       throw new Error(
         400, 
-        "You can't select amount type less than 500 or greater than 100000"
+        "You can't select amount type less than 500 or greater than 100000."
       );
     }
-    if(!amountTypeAsString.startsWith("5") || !amountTypeAsString.startsWith("2") || !amountTypeAsString.startsWith("1")) {
+    if(!amountTypeAsString.startsWith("5") && !amountTypeAsString.startsWith("2") && !amountTypeAsString.startsWith("1")) {
       throw new Error(
         400,
-        "Invalid amount type"
+        "Invalid amount type."
       );
     }
     if (refs.size() == 10) {
@@ -74,6 +74,31 @@ public class ReferralController {
     ServiceResponse<List<Referral>> response = new ServiceResponse<List<Referral>>(referralList, 200);
     return new ResponseEntity<>(
       response, HttpStatus.OK
+    );
+   } catch (Error e) {
+     throw new Error(e.getCode(), e.getMessage());
+   }
+ }
+
+ public ResponseEntity<ServiceResponse<String>> withDraw(String authorization) {
+   try {
+    ServiceResponse<AuthModel> authResponse = authClient.getAuthModel(authorization);
+    AuthModel authModel = authResponse.getResponse();
+    Referral r1 = repository.findByOwner(authModel.getId()).orElseThrow(() -> {
+      return new Error(
+        404,
+        "Referral object not found"
+      );
+    });
+    r1.setId(UUID.randomUUID());
+    Referral r2 = repository.save(r1);
+    String s = String.format(
+      "Successfully withdrawn - Referral code set to %s",
+      r2.getId().toString()
+    );
+    return new ResponseEntity<>(
+      new ServiceResponse<String>(s, 200),
+      HttpStatus.OK
     );
    } catch (Error e) {
      throw new Error(e.getCode(), e.getMessage());
