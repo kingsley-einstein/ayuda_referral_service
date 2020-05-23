@@ -64,6 +64,27 @@ public class ReferralController {
    }
  }
 
+ public ResponseEntity<ServiceResponse<Referral>> getByOwner(String authorization) {
+   try {
+     ServiceResponse<AuthModel> authResponse = authClient.getAuthModel(authorization);
+     AuthModel authModel = authResponse.getResponse();
+     Referral r = repository.findByOwner(authModel.getId()).orElseThrow(() -> {
+       return new Error(
+         404,
+         "Referral object not found"
+       );
+     });
+     return new ResponseEntity<>(
+       new ServiceResponse<Referral>(
+         r, 404
+       ),
+       HttpStatus.OK
+     );
+   } catch (Error e) {
+     throw new Error(e.getCode(), e.getMessage());
+   }
+ }
+
  public ResponseEntity<ServiceResponse<List<Referral>>> getAllReferralsReferredBy(
    UUID referredBy, 
    Integer page
@@ -90,6 +111,13 @@ public class ReferralController {
         "Referral object not found"
       );
     });
+    List<Referral> refs = repository.findByReferredBy(r1.getId());
+    
+    refs.forEach((ref) -> {
+      ref.setReferredBy(null);
+      repository.save(ref);
+    });
+    
     r1.setId(UUID.randomUUID());
     Referral r2 = repository.save(r1);
     String s = String.format(

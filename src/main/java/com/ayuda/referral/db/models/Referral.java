@@ -57,4 +57,8 @@ public class Referral implements java.io.Serializable {
   public Integer getAmountType() {
     return amountType;
   }
+
+  public void setReferredBy(UUID referredBy) {
+    this.referredBy = referredBy;
+  }
 }
