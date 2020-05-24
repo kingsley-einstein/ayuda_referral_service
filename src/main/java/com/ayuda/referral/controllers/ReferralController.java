@@ -32,26 +32,53 @@ public class ReferralController {
     ServiceResponse<AuthModel> authResponse = authClient.getAuthModel(authorization);
     AuthModel authModel = authResponse.getResponse();
     String amountTypeAsString = body.getAmountType().toString();
-    List<Referral> refs = repository.findByReferredBy(body.getReferredBy());
-    if (body.getAmountType() > 100000 || body.getAmountType() < 500) {
-      throw new Error(
-        400, 
-        "You can't select amount type less than 500 or greater than 100000."
-      );
+    List<Referral> refs = null;
+    if (
+      body.getReferredBy() != null || 
+      body.getReferredBy().toString().trim().length() > 0
+    ) {
+      refs = repository.findByReferredBy(body.getReferredBy());
+    } else {
+      if (body.getAmountType() > 100000 || body.getAmountType() < 500) {
+        throw new Error(
+          400, 
+          "You can't select amount type less than 500 or greater than 100000."
+        );
+      }
+      if(!amountTypeAsString.startsWith("5") && !amountTypeAsString.startsWith("2") && !amountTypeAsString.startsWith("1")) {
+        throw new Error(
+          400,
+          "Invalid amount type."
+        );
+      }
     }
-    if(!amountTypeAsString.startsWith("5") && !amountTypeAsString.startsWith("2") && !amountTypeAsString.startsWith("1")) {
-      throw new Error(
-        400,
-        "Invalid amount type."
-      );
-    }
-    if (refs.size() == 10) {
+
+    if (refs != null && refs.size() == 10) {
       throw new Error(
         400,
         "Your referrer already has maximum number of referrals."
       );
     }
-    Referral r1 = new Referral(UUID.randomUUID(), authModel.getId(), body.getReferredBy(), body.getAmountType());
+
+    Referral referrer = null;
+
+    if (body.getReferredBy() != null) {
+      referrer = repository.findById(body.getReferredBy()).orElseThrow(() -> {
+        return new Error(
+          404,
+          "Referrer not found."
+        );
+      });
+    }
+
+    Referral r1 = null;
+
+    if (referrer != null) {
+      r1 = new Referral(UUID.randomUUID(), authModel.getId(), body.getReferredBy(), referrer.getAmountType());
+    } else {
+      r1 = new Referral(UUID.randomUUID(), authModel.getId(), null, body.getAmountType());
+    }
+
     Referral r2 = repository.save(r1);
     ServiceResponse<Referral> sr = new ServiceResponse<Referral>(
       r2, 201
@@ -76,7 +103,7 @@ public class ReferralController {
      });
      return new ResponseEntity<>(
        new ServiceResponse<Referral>(
-         r, 404
+         r, 200
        ),
        HttpStatus.OK
      );
@@ -85,19 +112,33 @@ public class ReferralController {
    }
  }
 
+ public ResponseEntity<ServiceResponse<List<Referral>>> getAllReferralList(UUID referredBy) {
+   try {
+     List<Referral> referrals = repository.findByReferredBy(referredBy);
+     return new ResponseEntity<>(
+       new ServiceResponse<List<Referral>>(
+         referrals, 200
+       ),
+       HttpStatus.OK
+     );
+   } catch (Exception e) {
+     throw new Error(500, e.getMessage());
+   }
+ }
+
  public ResponseEntity<ServiceResponse<List<Referral>>> getAllReferralsReferredBy(
    UUID referredBy, 
    Integer page
    ) {
    try {
-    Page<Referral> referralPage = repository.findByReferredBy(referredBy, PageRequest.of(page, 10));
+    Page<Referral> referralPage = repository.findByReferredBy(referredBy, PageRequest.of(page, 5));
     List<Referral> referralList = referralPage.getContent();
     ServiceResponse<List<Referral>> response = new ServiceResponse<List<Referral>>(referralList, 200);
     return new ResponseEntity<>(
       response, HttpStatus.OK
     );
-   } catch (Error e) {
-     throw new Error(e.getCode(), e.getMessage());
+   } catch (Exception e) {
+     throw new Error(500, e.getMessage());
    }
  }
 

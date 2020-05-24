@@ -11,6 +11,7 @@ import com.ayuda.referral.server.ServiceResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,6 +53,24 @@ public class Router {
   ) {
     try {
       return referralController.getAllReferralsReferredBy(referredBy, page);
+    } catch (Error e) {
+      throw new Error(e.getCode(), e.getMessage());
+    }
+  }
+
+  @GetMapping("/referred/asList/{referredBy}")
+  public ResponseEntity<ServiceResponse<List<Referral>>> getAllReferralList(@PathVariable("referredBy") UUID referredBy) {
+    try {
+      return referralController.getAllReferralList(referredBy);
+    } catch (Error e) {
+      throw new Error(e.getCode(), e.getMessage());
+    }
+  }
+
+  @PatchMapping("/withdraw")
+  public ResponseEntity<ServiceResponse<String>> withDraw(@RequestHeader("Authorization") String authorization) {
+    try {
+      return referralController.withDraw(authorization);
     } catch (Error e) {
       throw new Error(e.getCode(), e.getMessage());
     }

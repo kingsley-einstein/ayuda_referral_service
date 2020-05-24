@@ -22,6 +22,7 @@ public class Referral implements java.io.Serializable {
   @Column(name = "referredBy", nullable = true)
   private UUID referredBy;
 
+  @NotNull(message = "Amount type is required")
   @Column(name = "amountType", nullable = false)
   private Integer amountType;
   
