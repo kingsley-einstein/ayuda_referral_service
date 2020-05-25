@@ -67,6 +67,15 @@ public class Router {
     }
   }
 
+  @GetMapping("/referred/count/{referredBy}")
+  public ResponseEntity<ServiceResponse<Long>> countAllByReferredBy(@PathVariable("referredBy") UUID referredBy) {
+    try {
+      return referralController.countByReferredBy(referredBy);
+    } catch (Error e) {
+      throw new Error(e.getCode(), e.getMessage());
+    }
+  }
+
   @PatchMapping("/withdraw")
   public ResponseEntity<ServiceResponse<String>> withDraw(@RequestHeader("Authorization") String authorization) {
     try {
