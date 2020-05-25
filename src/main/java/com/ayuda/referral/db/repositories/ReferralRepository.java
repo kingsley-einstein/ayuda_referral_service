@@ -15,4 +15,5 @@ public interface ReferralRepository extends JpaRepository<Referral, UUID> {
   Page<Referral> findByReferredBy(UUID referredBy, Pageable pageable);
   List<Referral> findByReferredBy(UUID referredBy);
   Optional<Referral> findByOwner(UUID Owner);
+  Long countByReferredBy(UUID referredBy);
 }

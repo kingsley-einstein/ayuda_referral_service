@@ -142,6 +142,20 @@ public class ReferralController {
    }
  }
 
+ public ResponseEntity<ServiceResponse<Long>> countByReferredBy(UUID referredBy) {
+   try {
+     Long count = repository.countByReferredBy(referredBy);
+     return new ResponseEntity<>(
+       new ServiceResponse<Long>(
+         count, 200
+       ),
+       HttpStatus.OK
+     );
+   } catch (Exception e) {
+     throw new Error(500, e.getMessage());
+   }
+ }
+
  public ResponseEntity<ServiceResponse<String>> withDraw(String authorization) {
    try {
     ServiceResponse<AuthModel> authResponse = authClient.getAuthModel(authorization);
