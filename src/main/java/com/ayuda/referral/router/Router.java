@@ -77,9 +77,12 @@ public class Router {
   }
 
   @PatchMapping("/withdraw")
-  public ResponseEntity<ServiceResponse<String>> withDraw(@RequestHeader("Authorization") String authorization) {
+  public ResponseEntity<ServiceResponse<String>> withDraw(
+    @RequestHeader("Authorization") String authorization,
+    @RequestBody Referral body
+  ) {
     try {
-      return referralController.withDraw(authorization);
+      return referralController.withDraw(authorization, body);
     } catch (Error e) {
       throw new Error(e.getCode(), e.getMessage());
     }

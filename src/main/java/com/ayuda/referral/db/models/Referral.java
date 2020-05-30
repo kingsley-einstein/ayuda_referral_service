@@ -16,7 +16,7 @@ public class Referral implements java.io.Serializable {
   private UUID id;
 
   @NotNull(message = "Owner field is required.")
-  @Column(name = "owner", nullable = false)
+  @Column(name = "owner", nullable = false, unique = true)
   private UUID owner;
 
   @Column(name = "referredBy", nullable = true)

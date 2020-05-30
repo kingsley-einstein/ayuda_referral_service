@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// import org.springframework.stereotype.Component;
 
 public class ReferralController {
  @Autowired
@@ -31,21 +30,21 @@ public class ReferralController {
    try {
     ServiceResponse<AuthModel> authResponse = authClient.getAuthModel(authorization);
     AuthModel authModel = authResponse.getResponse();
-    String amountTypeAsString = body.getAmountType().toString();
+    String amountTypeAsString = body.getAmountType() != null ? body.getAmountType().toString() : null;
     List<Referral> refs = null;
     if (
-      body.getReferredBy() != null || 
+      body.getReferredBy() != null && 
       body.getReferredBy().toString().trim().length() > 0
     ) {
       refs = repository.findByReferredBy(body.getReferredBy());
     } else {
-      if (body.getAmountType() > 100000 || body.getAmountType() < 500) {
+      if (body.getAmountType() != null && (body.getAmountType() > 100000 || body.getAmountType() < 500)) {
         throw new Error(
           400, 
           "You can't select amount type less than 500 or greater than 100000."
         );
       }
-      if(!amountTypeAsString.startsWith("5") && !amountTypeAsString.startsWith("2") && !amountTypeAsString.startsWith("1")) {
+      if(body.getAmountType() != null && (!amountTypeAsString.startsWith("5") && !amountTypeAsString.startsWith("2") && !amountTypeAsString.startsWith("1"))) {
         throw new Error(
           400,
           "Invalid amount type."
@@ -88,6 +87,9 @@ public class ReferralController {
     );
    } catch (Error e) {
      throw new Error(e.getCode(), e.getMessage());
+   } catch (Exception e) {
+    //  e.printStackTrace();
+     throw new Error(500, e.getMessage());
    }
  }
 
@@ -156,7 +158,7 @@ public class ReferralController {
    }
  }
 
- public ResponseEntity<ServiceResponse<String>> withDraw(String authorization) {
+ public ResponseEntity<ServiceResponse<String>> withDraw(String authorization, Referral body) {
    try {
     ServiceResponse<AuthModel> authResponse = authClient.getAuthModel(authorization);
     AuthModel authModel = authResponse.getResponse();
@@ -174,6 +176,7 @@ public class ReferralController {
     });
     
     r1.setId(UUID.randomUUID());
+    r1.setAmountType(body.getAmountType());
     Referral r2 = repository.save(r1);
     String s = String.format(
       "Successfully withdrawn - Referral code set to %s",
