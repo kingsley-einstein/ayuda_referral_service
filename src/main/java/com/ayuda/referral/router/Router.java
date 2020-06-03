@@ -9,6 +9,7 @@ import com.ayuda.referral.server.Error;
 import com.ayuda.referral.server.ServiceResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,6 +25,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class Router {
   @Autowired
   private ReferralController referralController;
+
+  @GetMapping("/")
+  public ResponseEntity<ServiceResponse<String>> getMessage() {
+    return new ResponseEntity<>(
+      new ServiceResponse<String>(
+        "You have reached the Ayuda referral service",
+        200
+      ),
+      HttpStatus.OK
+    );
+  }
 
   @PostMapping("/create")
   public ResponseEntity<ServiceResponse<Referral>> createReferral(
