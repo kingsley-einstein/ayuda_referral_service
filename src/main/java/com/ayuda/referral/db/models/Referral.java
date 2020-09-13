@@ -35,9 +35,9 @@ public class Referral implements java.io.Serializable {
     this.amountType = amountType;
   }
 
-  public void setId(UUID id) {
-    this.id = id;
-  }
+  // public void setId(UUID id) {
+  //   this.id = id;
+  // }
 
   public UUID getId() {
     return id;

@@ -175,7 +175,7 @@ public class ReferralController {
       repository.save(ref);
     });
     
-    r1.setId(UUID.randomUUID());
+    // r1.setId(UUID.randomUUID());
     r1.setAmountType(body.getAmountType());
     Referral r2 = repository.save(r1);
     String s = String.format(
