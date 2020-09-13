@@ -11,6 +11,7 @@ import com.ayuda.referral.services.auth.AuthModel;
 
 // import java.util.Map;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,6 +126,34 @@ public class ReferralController {
      );
    } catch (Exception e) {
      throw new Error(500, e.getMessage());
+   }
+ }
+
+ public ResponseEntity<ServiceResponse<Referral>> referExistingUser(UUID code, String authorization) {
+   try {
+     ServiceResponse<AuthModel> authResponse = authClient.getAuthModel(authorization);
+     Referral r = repository.findByOwner(authResponse.getResponse().getId()).orElseThrow(() -> {
+       return new Error(404, "Referral object not found");
+     });
+     Referral r2 = repository.findById(code).orElseThrow(() -> {
+       return new Error(404, "Referral object not found");
+     });
+     List<Referral> referrals = repository.findByReferredBy(r.getId());
+     if (referrals.size() > 0) {
+       throw new Error(400, "You already have referrals and can't be referred just yet");
+     }
+     r.setAmountType(r2.getAmountType());
+     r.setReferredBy(r2.getId());
+     Referral rNew = repository.save(r);
+
+     return new ResponseEntity<>(
+       new ServiceResponse<Referral>(
+          rNew, 200        
+       ),
+       HttpStatus.OK
+     );
+   } catch (Error e) {
+     throw new Error(e.getCode(), e.getMessage());
    }
  }
 

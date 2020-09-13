@@ -79,6 +79,15 @@ public class Router {
     }
   }
 
+  @GetMapping("/refer_existing/{code}")
+  public ResponseEntity<ServiceResponse<Referral>> referExisting(@PathVariable("code") UUID code, @RequestHeader("Authorization") String authorization) {
+    try {
+      return referralController.referExistingUser(code, authorization);
+    } catch (Error e) {
+      throw new Error(e.getCode(), e.getMessage());
+    }
+  }
+
   @GetMapping("/referred/count/{referredBy}")
   public ResponseEntity<ServiceResponse<Long>> countAllByReferredBy(@PathVariable("referredBy") UUID referredBy) {
     try {
