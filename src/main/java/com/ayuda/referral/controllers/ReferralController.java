@@ -154,6 +154,8 @@ public class ReferralController {
      );
    } catch (Error e) {
      throw new Error(e.getCode(), e.getMessage());
+   } catch (Exception e) {
+     throw new Error(500, e.getMessage());
    }
  }
 
