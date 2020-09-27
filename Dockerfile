@@ -6,5 +6,5 @@ COPY pom.xml ./
 RUN mvn clean package -DskipTests
 
 FROM openjdk:11
-COPY --from=MvnBuild target/ayuda-referral-service-0.0.1-snapshot.jar app.jar
+COPY --from=MvnBuild target/ayuda-referral-service-0.0.1-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java", "-Dspring.profiles.active=production", "-Xmx256m", "-jar", "app.jar"]
